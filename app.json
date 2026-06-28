@@ -40,6 +40,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "81947c4b-8126-49b7-91a9-f59c5f7efea4"
+      }
+    },
+    "owner": "limrun"
   }
 }
