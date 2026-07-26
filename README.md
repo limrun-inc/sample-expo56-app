@@ -1,6 +1,29 @@
-# Welcome to your Expo app 👋
+# Pulse — Expo build-benchmark super app
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A deliberately heavyweight [Expo](https://expo.dev) SDK 56 app used to benchmark build and cache
+services against EAS Build. It packs the native features found in the most popular consumer apps
+into a single project so that prebuild + native compilation exercises a realistic, large dependency
+graph.
+
+## What's inside
+
+| Area | Features | Key packages |
+| --- | --- | --- |
+| Social feed | Infinite scroll, FTS5 search, double-tap likes, stories rail | `@shopify/flash-list`, `expo-image`, `expo-sqlite`, `react-native-gesture-handler`, `react-native-reanimated` |
+| Maps | Native Apple/Google maps, markers, location | `expo-maps`, `expo-location` |
+| Camera studio | Photo capture, QR scanning, torch, image pipeline, publish to feed | `expo-camera`, `expo-image-picker`, `expo-image-manipulator`, `expo-media-library` |
+| Media lab | Streaming video w/ cache + PiP, audio streaming, voice recording, TTS, thumbnails | `expo-video`, `expo-audio`, `expo-speech`, `expo-video-thumbnails` |
+| Profile & auth | Biometric lock, secure token storage, device/battery/network info | `expo-local-authentication`, `expo-secure-store`, `expo-device`, `expo-battery`, `expo-network` |
+| Payments | Native Stripe card field (test mode) | `@stripe/stripe-react-native` |
+| Background | Periodic feed sync, scheduled notifications | `expo-background-task`, `expo-task-manager`, `expo-notifications` |
+| Sensors | Accelerometer/gyro/magnetometer/barometer streamed into Skia charts | `expo-sensors`, `@shopify/react-native-skia`, `expo-keep-awake` |
+| System toolbox | Files, OTA updates, print, mail, calendar, contacts, clipboard, sharing, screen-capture blocking, ATT, brightness, store review, crypto | `expo-file-system`, `expo-updates`, `expo-print`, `expo-mail-composer`, `expo-calendar`, `expo-contacts`, `expo-clipboard`, `expo-sharing`, `expo-screen-capture`, `expo-tracking-transparency`, `expo-brightness`, `expo-store-review`, `expo-crypto` |
+| In-app browser | Full WebView with nav controls | `react-native-webview` |
+| State & data | SQLite persistence, query cache, persisted preferences | `expo-sqlite`, `@tanstack/react-query`, `zustand`, `@react-native-async-storage/async-storage` |
+
+The app uses Continuous Native Generation — `android/` and `ios/` are gitignored and produced by
+`npx expo prebuild`, so every build service run pays the full prebuild + native compile cost.
+Release builds also enable Proguard + resource shrinking on Android via `expo-build-properties`.
 
 ## Get started
 
@@ -16,41 +39,29 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+3. Build natively
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+   ```bash
+   npx expo run:android   # or run:ios
+   ```
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+Most screens rely on native modules, so use a [development build](https://docs.expo.dev/develop/development-builds/introduction/)
+— Expo Go will not work.
 
-## Get a fresh project
-
-When you're ready, run:
+## Benchmarking
 
 ```bash
-npm run reset-project
+# Full clean native build, the primary benchmark target
+npx expo prebuild --clean
+cd android && ./gradlew :app:assembleRelease
+
+# or via EAS
+eas build --platform android --profile production
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Verification checklist
 
-### Other setup steps
-
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- `npx tsc --noEmit` — typecheck
+- `npx expo lint` — lint
+- `npx expo-doctor` — dependency health
+- `npx expo export --platform android --platform ios` — Metro bundle check
