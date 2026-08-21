@@ -42,5 +42,8 @@
     "web": "expo start --web",
     "lint": "expo lint"
   },
-  "private": true
+  "private": true,
+  "overrides": {
+    "nanoid@^3.0.0": "3.3.18"
+  }
 }
