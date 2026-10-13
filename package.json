@@ -45,5 +45,6 @@
   "private": true,
   "overrides": {
     "nanoid@^3.0.0": "3.3.18"
-  }
+  },
+  "packageManager": "pnpm@12.11.2"
 }
